@@ -1,0 +1,28 @@
+{
+    "name": "wordle",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon bot.js",
+        "words": "node js/wordProcessor.js",
+        "tsc": "tsc --watch"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/node": "^17.0.16",
+        "nodemon": "^2.0.15",
+        "prettier": "^2.5.1",
+        "typescript": "^4.5.5"
+    },
+    "dependencies": {
+        "csv": "^6.0.5",
+        "discord.js": "^13.6.0",
+        "discordx": "^9.1.15",
+        "dotenv": "^16.0.0",
+        "reflect-metadata": "^0.1.13"
+    }
+}
