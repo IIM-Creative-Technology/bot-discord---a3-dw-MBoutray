@@ -1,13 +1,12 @@
-const db = require('./database.js')
-const rolesHandler = require('./roles-handler.js')
+const { executeQuery } = require('./database.js')
+const { upgradeRole } = require('./roles-handler.js')
 
 const xpPerMessage = 1
 const xpNeedForFirstLevel = 5
 const xpCurveCoeff = 0.3
 
 const checkUser = async (message) => {
-  return await db
-    .executeQuery(`SELECT * FROM xp WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`)
+  return await executeQuery(`SELECT * FROM xp WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`)
     .then((result) => {
       return result
     })
@@ -17,13 +16,12 @@ const checkUser = async (message) => {
 }
 
 const addUser = async (message, xpCount = 0, xpLevel = 0) => {
-  return await db
-    .executeQuery(
-      `INSERT INTO xp (user_id, guild_id, xp_count, xp_level) VALUES (${message.author.id}, ${message.guild.id}, ${xpCount}, ${xpLevel})`
-    )
+  return await executeQuery(
+    `INSERT INTO xp (user_id, guild_id, xp_count, xp_level) VALUES (${message.author.id}, ${message.guild.id}, ${xpCount}, ${xpLevel})`
+  )
     .then(async (result) => {
       // Add the first role
-      rolesHandler.upgradeRole(message, 0)
+      upgradeRole(message, 0)
 
       return result
     })
@@ -33,14 +31,13 @@ const addUser = async (message, xpCount = 0, xpLevel = 0) => {
 }
 
 const updateUser = async (message, userData, newXpCount, newXpLevel) => {
-  return await db
-    .executeQuery(
-      `UPDATE xp SET xp_count = ${newXpCount}, xp_level = ${newXpLevel} WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`
-    )
+  return await executeQuery(
+    `UPDATE xp SET xp_count = ${newXpCount}, xp_level = ${newXpLevel} WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`
+  )
     .then(async (result) => {
       // If the user levels up
       if (userData.xp_level < newXpLevel) {
-        await rolesHandler.upgradeRole(message, newXpLevel)
+        await upgradeRole(message, newXpLevel)
       }
 
       return result

@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js')
-const xpHandler = require('./xp-handler.js')
+const { checkUser } = require('./xp-handler.js')
 const { roleColors } = require('./roles-handler.js')
 
 const getChannelsFromName = (client, channelName, type = 'GUILD_TEXT') => {
@@ -7,7 +7,7 @@ const getChannelsFromName = (client, channelName, type = 'GUILD_TEXT') => {
 }
 
 const createEmbedMessage = async (message) => {
-  const userData = (await xpHandler.checkUser(message))[0]
+  const userData = (await checkUser(message))[0]
 
   return new MessageEmbed()
     .setTitle(`${message.author.username} a envoyé un message depuis le serveur ${message.guild.name}.`)

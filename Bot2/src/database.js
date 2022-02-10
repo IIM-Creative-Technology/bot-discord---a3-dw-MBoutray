@@ -18,12 +18,6 @@ module.exports.connect = () => {
 }
 
 module.exports.executeQuery = (query) => {
-  // if (connection.state === 'disconnected') {
-  //   // Ne pas oublier d'appeler la fonction connect avant de faire des requètes à la base de donnée
-  //   throw new Error(
-  //     "There is no connection to the database, don't forget to call the 'connect' method before executing queries!"
-  //   )
-  // }
   return new Promise((resolve, reject) => {
     connection.query(query, (err, results) => {
       if (err) reject(err)

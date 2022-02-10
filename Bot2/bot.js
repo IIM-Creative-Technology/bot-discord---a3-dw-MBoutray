@@ -1,7 +1,7 @@
 const clientLoader = require('./src/clientLoader')
 const commandLoader = require('./src/commandLoader')
-const xpHandler = require('./src/xp-handler')
-const shareMessage = require('./src/share-message')
+const { onMessage } = require('./src/xp-handler')
+const { sendMessagesToOtherChannels } = require('./src/share-message')
 require('colors')
 
 const COMMAND_PREFIX = '$'
@@ -12,6 +12,7 @@ const MEMBERS = new Map([
   ['Martin', 120133103304835072n]
 ])
 
+
 clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
   await commandLoader.load(client)
 
@@ -20,11 +21,11 @@ clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
     if (message.author.bot) return
 
     // Handle the xp and role assigning
-    await xpHandler.onMessage(message)
+    await onMessage(message)
 
     // Handle the sending of message between text channels named 'shared'
     if (message.channel.name === 'shared') {
-      await shareMessage.sendMessagesToOtherChannels(message, 'shared')
+      await sendMessagesToOtherChannels(message, 'shared')
     }
 
     // Ne pas tenir compte des messages envoyés par les bots, ou qui ne commencent pas par le préfix
