@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "start": "nodemon bot.js"
+        "nodemon": "nodemon bot.js",
+        "start": "node bot.js"
     },
     "dependencies": {
         "axios": "^0.25.0",

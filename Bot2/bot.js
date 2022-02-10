@@ -1,5 +1,7 @@
 const clientLoader = require('./src/clientLoader')
 const commandLoader = require('./src/commandLoader')
+const xpHandler = require('./src/xp-handler')
+const rolesHandler = require('./src/roles-handler')
 require('colors')
 
 const COMMAND_PREFIX = '$'
@@ -14,10 +16,9 @@ clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
   await commandLoader.load(client)
 
   client.on('messageCreate', async (message) => {
-    // Liker mes messages
-    // if (message.author.id === MEMBERS.get('Martin').toString()) {
-    //   await message.react('❤')
-    // }
+    if (message.guild.id == '939179272524935239') {
+      await xpHandler.onMessage(message)
+    }
 
     // Ne pas tenir compte des messages envoyés par les bots, ou qui ne commencent pas par le préfix
     if (message.author.bot || !message.content.startsWith(COMMAND_PREFIX)) return
