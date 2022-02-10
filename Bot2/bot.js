@@ -1,7 +1,7 @@
 const clientLoader = require('./src/clientLoader')
 const commandLoader = require('./src/commandLoader')
 const xpHandler = require('./src/xp-handler')
-const rolesHandler = require('./src/roles-handler')
+const shareMessage = require('./src/share-message')
 require('colors')
 
 const COMMAND_PREFIX = '$'
@@ -16,7 +16,16 @@ clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
   await commandLoader.load(client)
 
   client.on('messageCreate', async (message) => {
+    // Return for messages sent by bots
+    if (message.author.bot) return
+
+    // Handle the xp and role assigning
     await xpHandler.onMessage(message)
+
+    // Handle the sending of message between text channels named 'shared'
+    if (message.channel.name === 'shared') {
+      await shareMessage.sendMessagesToOtherChannels(message, 'shared')
+    }
 
     // Ne pas tenir compte des messages envoyés par les bots, ou qui ne commencent pas par le préfix
     if (message.author.bot || !message.content.startsWith(COMMAND_PREFIX)) return

@@ -98,3 +98,4 @@ module.exports.removeRole = removeRole
 module.exports.userHasRole = userHasRole
 module.exports.getGuildRoleFromName = getGuildRoleFromName
 module.exports.upgradeRole = upgradeRole
+module.exports.roleColors = roleColors
