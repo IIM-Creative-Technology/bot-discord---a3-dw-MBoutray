@@ -7,7 +7,7 @@ const xpCurveCoeff = 0.3
 
 const checkUser = async (message) => {
   return await db
-    .executeQuery(`SELECT * FROM xp WHERE user_id = ${message.author.id}`)
+    .executeQuery(`SELECT * FROM xp WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`)
     .then((result) => {
       return result
     })
@@ -18,24 +18,12 @@ const checkUser = async (message) => {
 
 const addUser = async (message, xpCount = 0, xpLevel = 0) => {
   return await db
-    .executeQuery(`INSERT INTO xp (user_id, xp_count, xp_level) VALUES (${message.author.id}, ${xpCount}, ${xpLevel})`)
+    .executeQuery(
+      `INSERT INTO xp (user_id, guild_id, xp_count, xp_level) VALUES (${message.author.id}, ${message.guild.id}, ${xpCount}, ${xpLevel})`
+    )
     .then(async (result) => {
-      // Check if the role exists
-      // const roleExists = await rolesHandler.checkIfRoleExist(message, levelString + xpLevel)
-
-      // // If the role doesn't exist, create it
-      // let roleToAssign = null
-      // if (!roleExists) {
-      //   roleToAssign = await rolesHandler.createRole(message, levelString + xpLevel, 'GREEN')
-      // } else {
-      //   // if it exists, get it
-      //   // roleToAssign = message
-      // }
-
-      // // If the sender, has a previous role, remove it
-      // rolesHandler.userHasRole(message)
-      // // if (condition) {
-      // // }
+      // Add the first role
+      rolesHandler.upgradeRole(message, 0)
 
       return result
     })
@@ -46,7 +34,9 @@ const addUser = async (message, xpCount = 0, xpLevel = 0) => {
 
 const updateUser = async (message, userData, newXpCount, newXpLevel) => {
   return await db
-    .executeQuery(`UPDATE xp SET xp_count = ${newXpCount}, xp_level = ${newXpLevel} WHERE user_id = ${message.author.id}`)
+    .executeQuery(
+      `UPDATE xp SET xp_count = ${newXpCount}, xp_level = ${newXpLevel} WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`
+    )
     .then(async (result) => {
       // If the user levels up
       if (userData.xp_level < newXpLevel) {
