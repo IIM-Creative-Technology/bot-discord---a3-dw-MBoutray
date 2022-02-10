@@ -1,13 +1,25 @@
 const { MessageEmbed } = require('discord.js')
-const { checkUser } = require('./xp-handler.js')
+const { getUserData } = require('./xp-handler.js')
 const { roleColors } = require('./roles-handler.js')
 
-const getChannelsFromName = (client, channelName, type = 'GUILD_TEXT') => {
-  return client.channels.cache.filter((channel) => channel.name === channelName && channel.type === type)
+/**
+ * Get all the channels that have the specified name and type in all the guilds the bot is in
+ * @param {Message} message Message received
+ * @param {string} channelName Name of the channel to look for
+ * @param {ChannelType=} type Type of the channel to look for
+ * @returns {Collection<Snowflake, Channel>} Map of the channels that correspond to the parameters
+ */
+const getChannelsFromName = (message, channelName, type = 'GUILD_TEXT') => {
+  return message.client.channels.cache.filter((channel) => channel.name === channelName && channel.type === type)
 }
 
+/**
+ * Create the EmbedMessage to be sent to all the other bridged channels
+ * @param {Message} message Message received
+ * @returns {EmbedMessage} Instance of the embed message
+ */
 const createEmbedMessage = async (message) => {
-  const userData = (await checkUser(message))[0]
+  const userData = (await getUserData(message))[0]
 
   return new MessageEmbed()
     .setTitle(`${message.author.username} a envoyé un message depuis le serveur ${message.guild.name}.`)
@@ -20,8 +32,13 @@ const createEmbedMessage = async (message) => {
     .setColor(roleColors.get(userData.xp_level))
 }
 
+/**
+ * Send the embed message to all the other bridged channels
+ * @param {Message} message Message received
+ * @param {string} [channelName='shared'] Name of the channel that the messages will be sent to
+ */
 const sendMessagesToOtherChannels = async (message, channelName = 'shared') => {
-  const allSharedChannels = getChannelsFromName(message.client, channelName)
+  const allSharedChannels = getChannelsFromName(message, channelName)
 
   allSharedChannels.each(async (channel) => {
     if (channel.id !== message.channel.id) {

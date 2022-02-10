@@ -5,13 +5,6 @@ const { sendMessagesToOtherChannels } = require('./src/share-message')
 require('colors')
 
 const COMMAND_PREFIX = '$'
-const MEMBERS = new Map([
-  ['Théo', 260525837315604490n],
-  ['Dylan', 425682756249452545n],
-  ['Alex', 433366920905883648n],
-  ['Martin', 120133103304835072n]
-])
-
 
 clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
   await commandLoader.load(client)
