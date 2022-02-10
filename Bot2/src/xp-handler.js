@@ -57,8 +57,6 @@ const canLevelUp = async (userData, newXpCount) => {
     totalXpNeededForLevelUp += Math.ceil(xpNeedForFirstLevel * Math.pow(1 + xpCurveCoeff, level))
   }
 
-  console.log(totalXpNeededForLevelUp, newXpCount)
-
   return totalXpNeededForLevelUp === newXpCount
 }
 

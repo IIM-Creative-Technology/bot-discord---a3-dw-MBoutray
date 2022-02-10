@@ -1,4 +1,15 @@
 const levelString = 'Botiful-lvl-'
+const roleColors = new Map([
+  [0, 'LIGHT_GREY'],
+  [1, 'GREEN'],
+  [2, 'AQUA'],
+  [3, 'BLUE'],
+  [4, 'PURPLE'],
+  [5, 'YELLOW'],
+  [6, 'ORANGE'],
+  [7, 'RED'],
+  [8, 'YELLOW']
+])
 
 const checkIfRoleExist = async (message, roleName) => {
   return await message.guild.roles
@@ -14,15 +25,15 @@ const checkIfRoleExist = async (message, roleName) => {
     })
 }
 
-const createRole = async (message, roleName, color = 'DEFAULT') => {
+const createRole = async (message, xpLevel) => {
   return await message.guild.roles
-    .create({ name: roleName, color: color })
+    .create({ name: levelString + xpLevel, color: roleColors.get(xpLevel) })
     .then((role) => {
       console.log(`Role ${role.name} created`)
       return role
     })
     .catch((err) => {
-      console.log(`Error while creating the role ${roleName}`, err)
+      console.log(`Error while creating the role ${levelString + xpLevel}`, err)
       return null
     })
 }
@@ -73,7 +84,7 @@ const upgradeRole = async (message, newXpLevel) => {
   // If the next role doesn't exist, create it
   let [roleExists, role] = await checkIfRoleExist(message, levelString + newXpLevel)
   if (!roleExists) {
-    role = await createRole(message, levelString + newXpLevel)
+    role = await createRole(message, newXpLevel)
   }
 
   // Assign the new role to the user
