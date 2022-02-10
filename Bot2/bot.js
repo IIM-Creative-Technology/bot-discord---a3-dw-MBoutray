@@ -16,10 +16,7 @@ clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
   await commandLoader.load(client)
 
   client.on('messageCreate', async (message) => {
-    // TODO remove this, here for testing
     await xpHandler.onMessage(message)
-    if (message.guild.id == '939179272524935239') {
-    }
 
     // Ne pas tenir compte des messages envoyés par les bots, ou qui ne commencent pas par le préfix
     if (message.author.bot || !message.content.startsWith(COMMAND_PREFIX)) return
