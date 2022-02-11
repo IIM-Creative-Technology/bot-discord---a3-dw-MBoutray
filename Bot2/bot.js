@@ -1,5 +1,6 @@
 const clientLoader = require('./src/clientLoader')
 const commandLoader = require('./src/commandLoader')
+const { checkIfRoleExist, createRole, assignRole } = require('./src/roles-handler')
 const { onMessage } = require('./src/xp-handler')
 const { sendMessagesToOtherChannels } = require('./src/share-message')
 require('colors')
@@ -8,6 +9,17 @@ const COMMAND_PREFIX = '$'
 
 clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
   await commandLoader.load(client)
+
+  client.on('guildMemberAdd', async (member) => {
+    // Check if the role is present in the server, create it if not present
+    let [roleExists, role] = await checkIfRoleExist(member.guild, 'Nouveau membre')
+    if (!roleExists) {
+      role = createRole(member.guild, 'Nouveau membre')
+    }
+
+    // Assign to new member
+    assignRole(member, role)
+  })
 
   client.on('messageCreate', async (message) => {
     // Return for messages sent by bots

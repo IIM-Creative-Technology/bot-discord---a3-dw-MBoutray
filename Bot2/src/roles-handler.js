@@ -14,13 +14,13 @@ const roleColors = new Map([
 
 /**
  * Check if the role has already been created on the server the message was sent on
- * @param {Message} message Message received
+ * @param {Guild} guild Guild to search the roles in
  * @param {string} roleName Name of the role to verify
  * @returns {[boolean, Role | null]} First value of tuple corresponds to if the role was found
  * Second value of tuple corresponds to the role component
  */
-const checkIfRoleExist = async (message, roleName) => {
-  return await message.guild.roles
+const checkIfRoleExist = async (guild, roleName) => {
+  return await guild.roles
     .fetch()
     .then((roles) => {
       //Search the roles of the guild for a role that matches the role name
@@ -38,34 +38,35 @@ const checkIfRoleExist = async (message, roleName) => {
 
 /**
  * Create a role using the specified message level
- * @param {Message} message Message received
- * @param {number} xpLevel Level number for the role to be created
+ * @param {Guild} guild Guild to create the role in
+ * @param {string} roleName Name of the role to be created
+ * @param {ColorResolvable=} color Color of the role to be created
  * @returns {Role | null} Role created, null if the creation wasn't successful
  */
-const createRole = async (message, xpLevel) => {
-  return await message.guild.roles
-    .create({ name: levelString + xpLevel, color: roleColors.get(xpLevel) })
+const createRole = async (guild, roleName, color = 'DEFAULT') => {
+  return await guild.roles
+    .create({ name: roleName, color: color })
     .then((role) => {
       console.log(`Role ${role.name} created`)
       return role
     })
     .catch((err) => {
-      console.log(`Error while creating the role ${levelString + xpLevel}`, err)
+      console.log(`Error while creating the role ${roleName}`, err)
       return null
     })
 }
 
 /**
  * Assign the role to the sender of the message
- * @param {Message} message Message received
+ * @param {GuildMember} member Guild member to assign the role to
  * @param {Role} role Role to assign to the sender
  * @returns {boolean} Role was assigned successfully or not
  */
-const assignRole = async (message, role) => {
-  return await message.member.roles
+const assignRole = async (member, role) => {
+  return await member.roles
     .add(role)
     .then((member) => {
-      console.log(`Role ${role.name} assigned to ${member.user.username}`)
+      console.log(`Role ${role.name} assigned to ${member.displayName}`)
       return true
     })
     .catch((err) => {
@@ -76,12 +77,12 @@ const assignRole = async (message, role) => {
 
 /**
  * Remove the role from the sender of the message
- * @param {Message} message Message received
+ * @param {GuildMember} member Guild member to remove the role from
  * @param {Role} role Role to remove from the sender
  * @returns {boolean} Role was removed successfully or not
  */
-const removeRole = async (message, role) => {
-  return await message.member.roles
+const removeRole = async (member, role) => {
+  return await member.roles
     .remove(role)
     .then((result) => {
       console.log(`Role ${role.name} removed`, result)
@@ -95,24 +96,24 @@ const removeRole = async (message, role) => {
 
 /**
  * Get the Role object from a name string
- * @param {Message} message Message received
+ * @param {Guild} guild Guild to get the role from
  * @param {string} roleName Name of the role
  * @returns {Role | undefined} Role that was found, undefined if not found
  */
-const getGuildRoleFromName = (message, roleName) => {
-  return message.guild.roles.cache.find((role) => {
+const getGuildRoleFromName = (guild, roleName) => {
+  return guild.roles.cache.find((role) => {
     return role.name === roleName
   })
 }
 
 /**
  * Find out if the user has a certain role
- * @param {Message} message Message received
+ * @param {GuildMember} member Member to verify
  * @param {Role} role Role to find on the user
  * @returns {boolean} Whether the user has the role
  */
-const userHasRole = (message, role) => {
-  return message.member.roles.cache.find((r) => r === role) !== undefined
+const userHasRole = (member, role) => {
+  return member.roles.cache.find((r) => r === role) !== undefined
 }
 
 /**
@@ -123,21 +124,21 @@ const userHasRole = (message, role) => {
  */
 const upgradeRole = async (message, level) => {
   // Get the previous role
-  const previousRole = getGuildRoleFromName(message, levelString + (level - 1))
+  const previousRole = getGuildRoleFromName(message.guild, levelString + (level - 1))
 
   // Remove previous role
-  if (previousRole && userHasRole(message, previousRole)) {
-    await removeRole(message, previousRole)
+  if (previousRole && userHasRole(message.member, previousRole)) {
+    await removeRole(message.member, previousRole)
   }
 
   // If the next role doesn't exist, create it
-  let [roleExists, role] = await checkIfRoleExist(message, levelString + level)
+  let [roleExists, role] = await checkIfRoleExist(message.guild, levelString + level)
   if (!roleExists) {
-    role = await createRole(message, level)
+    role = await createRole(message.guild, levelString + level, roleColors.get(level))
   }
 
   // Assign the new role to the user
-  return await assignRole(message, role)
+  return await assignRole(message.member, role)
 }
 
 module.exports.checkIfRoleExist = checkIfRoleExist

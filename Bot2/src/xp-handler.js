@@ -17,7 +17,7 @@ const xpCurveCoeff = 0.3
 const getUserData = async (message) => {
   return await executeQuery(`SELECT * FROM xp WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`)
     .then((result) => {
-      console.log(`User ${message.author}'s data received`)
+      console.log(`User ${message.author.username}'s data received`)
       return result
     })
     .catch((err) => {
@@ -41,7 +41,7 @@ const addUser = async (message, xpCount = 0, xpLevel = 0) => {
       // Add the first role
       upgradeRole(message, 0)
 
-      console.log(`User ${message.author} added to the database`)
+      console.log(`User ${message.author.username} added to the database`)
       return true
     })
     .catch((err) => {
@@ -68,7 +68,7 @@ const updateUser = async (message, userData, newXpCount, newXpLevel) => {
         await upgradeRole(message, newXpLevel)
       }
 
-      console.log(`User ${message.author}'s database entry updated`)
+      console.log(`User ${message.author.username}'s database entry updated`)
       return true
     })
     .catch((err) => {
