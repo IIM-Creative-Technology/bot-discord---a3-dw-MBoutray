@@ -1,4 +1,5 @@
 const { MessageEmbed } = require('discord.js')
+const { createEmbedMessage: embedBuilder } = require('./message-handler')
 const { getUserData } = require('./xp-handler.js')
 const { roleColors } = require('./roles-handler.js')
 
@@ -14,39 +15,33 @@ const getChannelsFromName = (message, channelName, type = 'GUILD_TEXT') => {
 }
 
 /**
- * Create the EmbedMessage to be sent to all the other bridged channels
- * @param {Message} message Message received
- * @returns {EmbedMessage} Instance of the embed message
- */
-const createEmbedMessage = async (message) => {
-  const userData = (await getUserData(message))[0]
-
-  return new MessageEmbed()
-    .setTitle(`${message.author.username} a envoyé un message depuis le serveur ${message.guild.name}.`)
-    .setThumbnail(message.author.avatarURL())
-    .addFields(
-      { name: 'Niveau', value: userData.xp_level.toString(), inline: true },
-      { name: 'Messages', value: userData.xp_count.toString(), inline: true }
-    )
-    .setDescription(message.content)
-    .setColor(roleColors.get(userData.xp_level))
-}
-
-/**
  * Send the embed message to all the other bridged channels
  * @param {Message} message Message received
  * @param {string} [channelName='shared'] Name of the channel that the messages will be sent to
  */
 const sendMessagesToOtherChannels = async (message, channelName = 'shared') => {
+  const userData = (await getUserData(message))[0]
   const allSharedChannels = getChannelsFromName(message, channelName)
 
   allSharedChannels.each(async (channel) => {
     if (channel.id !== message.channel.id) {
-      channel.send({ embeds: [await createEmbedMessage(message)] })
+      channel.send({
+        embeds: [
+          embedBuilder(
+            `${message.author.username} a envoyé un message depuis le serveur ${message.guild.name}.`,
+            message.content,
+            message.author.avatarURL(),
+            [
+              { name: 'Niveau', value: userData.xp_level.toString(), inline: true },
+              { name: 'Messages', value: userData.xp_count.toString(), inline: true }
+            ],
+            roleColors.get(userData.xp_level)
+          )
+        ]
+      })
     }
   })
 }
 
 module.exports.getChannelsFromName = getChannelsFromName
-module.exports.createEmbedMessage = createEmbedMessage
 module.exports.sendMessagesToOtherChannels = sendMessagesToOtherChannels

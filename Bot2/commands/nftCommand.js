@@ -1,5 +1,5 @@
 const Discord = require('discord.js')
-const { MessageEmbed } = require('discord.js')
+const { createEmbedMessage } = require('../src/message-handler')
 const axios = require('axios').default
 
 /**
@@ -8,20 +8,16 @@ const axios = require('axios').default
  * @param {Array<String>} arguments
  */
 module.exports.run = async (client, message, arguments) => {
-    const channel = message.channel
+  const channel = message.channel
 
-    axios
-        .get(`https://api.x.immutable.com/v1/collections/${arguments[0]}`)
-        .then(async (response) => {
-            const nftEmbed = new MessageEmbed()
-                .setColor('#0ddb1e')
-                .setTitle(response.data.name)
-                .setDescription(response.data.description)
-                .setThumbnail(response.data.icon_url)
+  axios
+    .get(`https://api.x.immutable.com/v1/collections/${arguments[0]}`)
+    .then(async (response) => {
+      const nftEmbed = createEmbedMessage(response.data.name, response.data.description, response.data.icon_url)
 
-            await message.channel.send({ embeds: [nftEmbed] })
-        })
-        .catch((err) => console.error(err))
+      await message.channel.send({ embeds: [nftEmbed] })
+    })
+    .catch((err) => console.error(err))
 }
 
 module.exports.name = 'nft'
