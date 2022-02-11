@@ -17,7 +17,7 @@ const xpCurveCoeff = 0.3
 const getUserData = async (message) => {
   return await executeQuery(`SELECT * FROM xp WHERE user_id = ${message.author.id} AND guild_id = ${message.guild.id}`)
     .then((result) => {
-      console.log(`User ${message.author.username}'s data received`)
+      // console.log(`User ${message.author.username}'s data received`)
       return result
     })
     .catch((err) => {

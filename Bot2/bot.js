@@ -1,8 +1,9 @@
 const clientLoader = require('./src/clientLoader')
 const commandLoader = require('./src/commandLoader')
 const { checkIfRoleExist, createRole, assignRole } = require('./src/roles-handler')
-const { onMessage } = require('./src/xp-handler')
+const { onMessage: xpOnMessage } = require('./src/xp-handler')
 const { sendMessagesToOtherChannels } = require('./src/share-message')
+const { onMessage: insultOnMessage } = require('./src/insult-handler')
 require('colors')
 
 const COMMAND_PREFIX = '$'
@@ -14,11 +15,11 @@ clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
     // Check if the role is present in the server, create it if not present
     let [roleExists, role] = await checkIfRoleExist(member.guild, 'Nouveau membre')
     if (!roleExists) {
-      role = createRole(member.guild, 'Nouveau membre')
+      role = await createRole(member.guild, 'Nouveau membre')
     }
 
     // Assign to new member
-    assignRole(member, role)
+    await assignRole(member, role)
   })
 
   client.on('messageCreate', async (message) => {
@@ -26,7 +27,10 @@ clientLoader.createClient(['GUILD_MEMBERS']).then(async (client) => {
     if (message.author.bot) return
 
     // Handle the xp and role assigning
-    await onMessage(message)
+    await xpOnMessage(message)
+
+    // Handle the insult filtering
+    await insultOnMessage(message)
 
     // Handle the sending of message between text channels named 'shared'
     if (message.channel.name === 'shared') {
